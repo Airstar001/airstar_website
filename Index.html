@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AIRSTAR$ — Social Dashboard</title>
+
+<style>
+:root{
+--bg:#0c0907;
+--panel:#17110d;
+--panel2:#21170f;
+--orange:#ff781a;
+--gold:#ffc15c;
+--text:#fff8f0;
+--muted:#c8b8aa;
+--line:#3a281b;
+}
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:Arial,Helvetica,sans-serif;
+}
+
+.hidden{
+display:none!important;
+}
+
+header{
+height:68px;
+position:sticky;
+top:0;
+z-index:5;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 4%;
+background:#100b08;
+border-bottom:1px solid var(--line);
+}
+
+.brand{
+font-size:25px;
+font-weight:900;
+color:white;
+text-decoration:none;
+}
+
+.brand span{
+color:var(--orange);
+}
+
+.search{
+width:min(390px,42vw);
+background:#21170f;
+border:1px solid var(--line);
+padding:11px 15px;
+border-radius:999px;
+color:white;
+}
+
+.top-links{
+display:flex;
+gap:15px;
+align-items:center;
+}
+
+.top-links a{
+color:var(--gold);
+text-decoration:none;
+font-size:14px;
+}
+
+.layout{
+width:min(1400px,96%);
+margin:22px auto;
+display:grid;
+grid-template-columns:220px minmax(300px,650px) 250px;
+gap:22px;
+align-items:start;
+}
+
+.side,.box,.post{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:15px;
+}
+
+.side{
+padding:17px;
+position:sticky;
+top:85px;
+}
+
+.profile-mini{
+text-align:center;
+padding:12px 5px 20px;
+border-bottom:1px solid var(--line);
+margin-bottom:13px;
+}
+
+.avatar{
+width:58px;
+height:58px;
+margin:0 auto 10px;
+border-radius:50%;
+display:grid;
+place-items:center;
+background:linear-gradient(135deg,#f15a14,#ffc15c);
+color:#230e03;
+font-size:23px;
+font-weight:900;
+}
+
+.profile-mini h3{
+font-size:16px;
+}
+
+.profile-mini p{
+font-size:12px;
+color:var(--muted);
+margin-top:5px;
+}
+
+.menu a{
+display:block;
+padding:12px 10px;
+border-radius:9px;
+color:#f2e5da;
+text-decoration:none;
+font-size:14px;
+margin:3px 0;
+}
+
+.menu a:hover,.menu a.active{
+background:#352014;
+color:var(--gold);
+}
+
+.center h1{
+font-size:25px;
+margin:3px 0 16px;
+}
+
+.box{
+padding:17px;
+margin-bottom:16px;
+}
+
+.box-title{
+font-weight:800;
+margin-bottom:12px;
+}
+
+textarea{
+width:100%;
+min-height:90px;
+resize:vertical;
+background:#0e0a08;
+color:white;
+border:1px solid var(--line);
+border-radius:10px;
+padding:13px;
+font:inherit;
+}
+
+input{
+background:#0e0a08;
+color:white;
+border:1px solid var(--line);
+border-radius:9px;
+padding:12px;
+}
+
+input:focus,textarea:focus{
+border-color:var(--orange);
+outline:none;
+}
+
+#authSection input{
+width:100%;
+margin:5px 0;
+}
+
+button{
+border:0;
+border-radius:999px;
+padding:11px 18px;
+background:linear-gradient(100deg,#f05b14,#ffad37);
+color:#210d02;
+font-weight:800;
+cursor:pointer;
+}
+
+button:hover{
+filter:brightness(1.1);
+}
+
+.post-tools{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+margin-top:12px;
+}
+
+input[type=file]{
+max-width:100%;
+color:var(--muted);
+font-size:12px;
+}
+
+.story-row{
+display:flex;
+gap:12px;
+overflow-x:auto;
+padding:4px 0 15px;
+}
+
+.story{
+flex:0 0 83px;
+text-align:center;
+font-size:12px;
+color:var(--muted);
+}
+
+.story .avatar{
+width:53px;
+height:53px;
+border:2px solid var(--orange);
+margin-bottom:7px;
+}
+
+.post{
+padding:17px;
+margin-bottom:16px;
+}
+
+.post-head{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:13px;
+}
+
+.post-head .avatar{
+width:42px;
+height:42px;
+font-size:17px;
+margin:0;
+flex-shrink:0;
+}
+
+.post-head p{
+font-size:14px;
+font-weight:700;
+}
+
+.post-head small{
+display:block;
+color:var(--muted);
+font-weight:400;
+margin-top:4px;
+}
+
+.post-text{
+line-height:1.65;
+color:#f1e5db;
+white-space:pre-wrap;
+overflow-wrap:anywhere;
+margin-bottom:12px;
+}
+
+.post-media{
+width:100%;
+max-height:440px;
+object-fit:contain;
+background:#080605;
+border-radius:10px;
+margin-bottom:12px;
+}
+
+.post-actions{
+display:flex;
+gap:10px;
+border-top:1px solid var(--line);
+padding-top:12px;
+}
+
+.post-actions button{
+background:transparent;
+color:var(--muted);
+border:1px solid var(--line);
+padding:9px 14px;
+}
+
+.post-actions button.liked{
+color:var(--gold);
+border-color:var(--orange);
+}
+
+.comments{
+margin-top:12px;
+display:none;
+}
+
+.comments.show{
+display:block;
+}
+
+.comment-list p{
+background:#0e0a08;
+padding:9px 12px;
+border-radius:9px;
+margin:7px 0;
+font-size:13px;
+overflow-wrap:anywhere;
+}
+
+.comment-entry{
+display:flex;
+gap:7px;
+margin-top:8px;
+}
+
+.comment-entry input{
+flex:1;
+min-width:0;
+border-radius:999px;
+}
+
+.right-card{
+padding:16px;
+margin-bottom:15px;
+}
+
+.right-card h3{
+font-size:15px;
+margin-bottom:12px;
+color:var(--gold);
+}
+
+.right-card p{
+font-size:13px;
+line-height:1.6;
+color:var(--muted);
+margin-bottom:10px;
+}
+
+.social-link{
+display:block;
+color:var(--text);
+text-decoration:none;
+border:1px solid var(--line);
+border-radius:9px;
+padding:10px;
+margin:8px 0;
+font-size:13px;
+}
+
+.social-link:hover{
+border-color:var(--orange);
+}
+
+.notice{
+color:var(--gold);
+font-size:12px;
+line-height:1.55;
+margin-top:12px;
+}
+
+footer{
+text-align:center;
+color:#948477;
+font-size:12px;
+padding:22px;
+border-top:1px solid var(--line);
+margin-top:20px;
+}
+
+@media(max-width:1050px){
+.layout{
+grid-template-columns:190px minmax(280px,1fr);
+}
+
+.right{
+display:none;
+}
+}
+
+@media(max-width:650px){
+
+header{
+padding:0 4%;
+height:60px;
+}
+
+.search{
+display:none;
+}
+
+.layout{
+display:block;
+width:94%;
+margin:14px auto;
+}
+
+.left{
+position:static;
+margin-bottom:15px;
+}
+
+.side{
+position:static;
+}
+
+.menu{
+display:flex;
+gap:5px;
+overflow-x:auto;
+}
+
+.menu a{
+white-space:nowrap;
+padding:10px;
+}
+
+.profile-mini{
+display:none;
+}
+
+.center h1{
+font-size:22px;
+}
+
+.post-actions{
+flex-wrap:wrap;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<header id="siteHeader" class="hidden">
+
+<a class="brand" href="#">AIRSTAR<span>$</span></a>
+
+<input class="search" id="search"
+placeholder="Search posts..."
+aria-label="Search posts">
+
+<div class="top-links">
+
+<a href="#feed">Home</a>
+
+<a href="#social">Social links</a>
+
+<button id="logoutBtn" type="button">LOG OUT</button>
+
+</div>
+
+</header>
+
+
+<section id="authSection" class="box"
+style="max-width:500px;margin:30px auto;">
+
+<h2 style="color:#ffc15c;margin-bottom:15px;">
+Welcome to AIRSTAR$
+</h2>
+
+<div style="display:flex;gap:10px;margin-bottom:20px;">
+
+<button type="button"
+onclick="showAuthForm('login')">
+LOGIN
+</button>
+
+<button type="button"
+onclick="showAuthForm('signup')">
+SIGN UP
+</button>
+
+</div>
+
+<form id="loginForm">
+
+<h3>Login to your account</h3>
+
+<br>
+
+<input id="loginEmail"
+type="email"
+placeholder="Email address"
+required>
+
+<br><br>
+
+<input id="loginPassword"
+type="password"
+placeholder="Password"
+required>
+
+<br><br>
+
+<button type="submit">LOGIN</button>
+
+</form>
+
+
+<form id="signupForm" class="hidden">
+
+<h3>Create your account</h3>
+
+<br>
+
+<input id="fullName"
+type="text"
+placeholder="Full name"
+required>
+
+<br><br>
+
+<input id="signupEmail"
+type="email"
+placeholder="Email address"
+required>
+
+<br><br>
+
+<input id="signupPassword"
+type="password"
+placeholder="Create password"
+minlength="8"
+required>
+
+<br><br>
+
+<button type="submit">CREATE ACCOUNT</button>
+
+</form>
+
+<p id="authMessage" class="notice"></p>
+
+</section>
+
+
+<div class="layout hidden" id="siteLayout">
+
+<aside class="left side">
+
+<div class="profile-mini">
+
+<div class="avatar">A</div>
+
+<h3>AIRSTAR$ Member</h3>
+
+<p>Your social space</p>
+
+</div>
+
+<nav class="menu">
+
+<a class="active" href="#feed">🏠 Home Feed</a>
+
+<a href="#create">✍️ Create Post</a>
+
+<a href="#stories">⭕ Stories</a>
+
+<a href="#social">🌐 Follow AIRSTAR$</a>
+
+<a href="#about">ℹ️ About</a>
+
+</nav>
+
+<p class="notice">
+Welcome to your AIRSTAR$ dashboard.
+</p>
+
+</aside>
+
+
+<main class="center" id="feed">
+
+<h1>Your AIRSTAR$ Feed</h1>
+
+
+<section class="box" id="stories">
+
+<div class="box-title">Stories & creators</div>
+
+<div class="story-row">
+
+<div class="story">
+<div class="avatar">A</div>
+AIRSTAR$
+</div>
+
+<div class="story">
+<div class="avatar">🎬</div>
+Creators
+</div>
+
+<div class="story">
+<div class="avatar">🎵</div>
+Music
+</div>
+
+<div class="story">
+<div class="avatar">😂</div>
+Comedy
+</div>
+
+<div class="story">
+<div class="avatar">✨</div>
+Trending
+</div>
+
+</div>
+
+</section>
+
+
+<section class="box" id="create">
+
+<div class="box-title">What's happening?</div>
+
+<form id="postForm">
+
+<textarea id="postText"
+placeholder="Share a thought, update or story..."
+maxlength="2000"></textarea>
+
+<div class="post-tools">
+
+<input id="postFile"
+type="file"
+accept="image/*,video/*"
+aria-label="Choose a photo or video">
+
+<button type="submit">PUBLISH POST</button>
+
+</div>
+
+</form>
+
+<p class="notice">
+Posts currently appear only in this browser.
+Online sharing will require database and storage setup.
+</p>
+
+</section>
+
+
+<div id="posts">
+
+<article class="post"
+data-text="welcome airstar connect share shine">
+
+<div class="post-head">
+
+<div class="avatar">A</div>
+
+<div>
+<p>AIRSTAR$ Official
+<small>Welcome post</small>
+</p>
+</div>
+
+</div>
+
+<p class="post-text">
+Welcome to AIRSTAR$! ✨
+
+Connect with people, share your moments and discover entertainment.
+
+Connect. Share. Shine.
+</p>
+
+<div class="post-actions">
+
+<button class="like-btn" type="button">
+♡ Like <span>0</span>
+</button>
+
+<button class="comment-toggle" type="button">
+💬 Comment
+</button>
+
+</div>
+
+<div class="comments">
+
+<div class="comment-list"></div>
+
+<form class="comment-entry">
+
+<input placeholder="Write a comment..."
+maxlength="300"
+required>
+
+<button type="submit">Send</button>
+
+</form>
+
+</div>
+
+</article>
+
+</div>
+
+</main>
+
+
+<aside class="right">
+
+<section class="side right-card" id="social">
+
+<h3>FOLLOW AIRSTAR$</h3>
+
+<p>
+Follow our social pages for videos, updates and entertainment.
+</p>
+
+<a class="social-link"
+href="https://www.tiktok.com/@real_airstar1"
+target="_blank"
+rel="noopener noreferrer">
+♪ TikTok · @real_airstar1
+</a>
+
+<a class="social-link"
+href="https://www.instagram.com/real_airstar1/"
+target="_blank"
+rel="noopener noreferrer">
+◎ Instagram · @real_airstar1
+</a>
+
+<a class="social-link"
+href="https://www.youtube.com/@real_airstar1"
+target="_blank"
+rel="noopener noreferrer">
+▶ YouTube · @real_airstar1
+</a>
+
+<a class="social-link"
+href="https://whatsapp.com/channel/0029VbETXi03mFYBy5HbRv0m"
+target="_blank"
+rel="noopener noreferrer">
+◉ WhatsApp Channel
+</a>
+
+</section>
+
+
+<section class="side right-card" id="about">
+
+<h3>About AIRSTAR$</h3>
+
+<p>
+A social and entertainment platform for sharing moments,
+discovering content and connecting with people.
+</p>
+
+</section>
+
+</aside>
+
+</div>
+
+
+<footer id="siteFooter" class="hidden">
+© 2026 AIRSTAR$. All rights reserved.
+· Connect. Share. Shine.
+</footer>
+
+
+<script>
+
+// SUPABASE CONNECTION
+
+const SUPABASE_URL =
+'https://ktmcnjkjcssahtnesedi.supabase.co';
+
+const SUPABASE_PUBLISHABLE_KEY =
+'sb_publishable_mfxGYAcvfdQZc8KUY4yzhg_9xCVNbxH';
+
+const db = window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY
+);
+
+
+// PAGE ELEMENTS
+
+const authSection =
+document.getElementById('authSection');
+
+const siteHeader =
+document.getElementById('siteHeader');
+
+const siteLayout =
+document.getElementById('siteLayout');
+
+const siteFooter =
+document.getElementById('siteFooter');
+
+const authMessage =
+document.getElementById('authMessage');
+
+
+// SHOW LOGIN OR DASHBOARD
+
+function updateAuthScreen(session){
+
+const loggedIn = Boolean(session);
+
+authSection.classList.toggle('hidden', loggedIn);
+
+siteHeader.classList.toggle('hidden', !loggedIn);
+
+siteLayout.classList.toggle('hidden', !loggedIn);
+
+siteFooter.classList.toggle('hidden', !loggedIn);
+
+}
+
+
+// LOGIN AND SIGNUP FORMS
+
+function showAuthForm(type){
+
+document.getElementById('loginForm').classList.toggle(
+'hidden',
+type !== 'login'
+);
+
+document.getElementById('signupForm').classList.toggle(
+'hidden',
+type !== 'signup'
+);
+
+authMessage.textContent = '';
+
+}
+
+
+// SIGN UP
+
+document.getElementById('signupForm')
+.addEventListener('submit', async function(e){
+
+e.preventDefault();
+
+const fullName =
+document.getElementById('fullName').value.trim();
+
+const email =
+document.getElementById('signupEmail').value.trim();
+
+const password =
+document.getElementById('signupPassword').value;
+
+authMessage.textContent = 'Creating your account...';
+
+const {data,error} = await db.auth.signUp({
+
+email:email,
+
+password:password,
+
+options:{
+data:{
+full_name:fullName
+}
+}
+
+});
+
+if(error){
+
+authMessage.textContent = error.message;
+
+return;
+
+}
+
+if(data.session){
+
+authMessage.textContent = 'Account created successfully!';
+
+}else{
+
+authMessage.textContent =
+'Account created! Check your email for confirmation before logging in.';
+
+}
+
+});
+
+
+// LOGIN
+
+document.getElementById('loginForm')
+.addEventListener('submit', async function(e){
+
+e.preventDefault();
+
+const email =
+document.getElementById('loginEmail').value.trim();
+
+const password =
+document.getElementById('loginPassword').value;
+
+authMessage.textContent = 'Logging in...';
+
+const {error} = await db.auth.signInWithPassword({
+
+email:email,
+
+password:password
+
+});
+
+if(error){
+
+authMessage.textContent = error.message;
+
+return;
+
+}
+
+authMessage.textContent = 'Login successful!';
+
+});
+
+
+// LOG OUT
+
+document.getElementById('logoutBtn')
+.addEventListener('click', async function(){
+
+const {error} = await db.auth.signOut();
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+showAuthForm('login');
+
+authMessage.textContent = 'You have logged out successfully.';
+
+});
+
+
+// CHECK LOGIN SESSION
+
+db.auth.onAuthStateChange((_event,session)=>{
+
+updateAuthScreen(session);
+
+});
+
+db.auth.getSession().then(({data,error})=>{
+
+if(error){
+
+updateAuthScreen(null);
+
+return;
+
+}
+
+updateAuthScreen(data.session);
+
+});
+
+
+// CREATE POSTS (LOCAL DEMO)
+
+const postForm =
+document.getElementById('postForm');
+
+const posts =
+document.getElementById('posts');
+
+postForm.addEventListener('submit',event=>{
+
+event.preventDefault();
+
+const text =
+document.getElementById('postText').value.trim();
+
+const file =
+document.getElementById('postFile').files[0];
+
+if(!text && !file){
+
+alert('Please write something or choose a photo/video first.');
+
+return;
+
+}
+
+const article = document.createElement('article');
+
+article.className = 'post';
+
+article.dataset.text =
+(text + ' ' + (file ? file.name : '')).toLowerCase();
+
+const head = document.createElement('div');
+
+head.className = 'post-head';
+
+const avatar = document.createElement('div');
+
+avatar.className = 'avatar';
+
+avatar.textContent = 'Y';
+
+const identity = document.createElement('div');
+
+const name = document.createElement('p');
+
+name.textContent = 'You';
+
+const meta = document.createElement('small');
+
+meta.textContent = 'Just now · Local demo';
+
+name.appendChild(meta);
+
+identity.appendChild(name);
+
+head.append(avatar,identity);
+
+article.appendChild(head);
+
+if(text){
+
+const p = document.createElement('p');
+
+p.className = 'post-text';
+
+p.textContent = text;
+
+article.appendChild(p);
+
+}
+
+if(file){
+
+const objectUrl = URL.createObjectURL(file);
+
+const media = file.type.startsWith('video/')
+? document.createElement('video')
+: document.createElement('img');
+
+media.className = 'post-media';
+
+media.src = objectUrl;
+
+if(media.tagName === 'VIDEO'){
+
+media.controls = true;
+
+media.playsInline = true;
+
+}else{
+
+media.alt = 'Photo attached to post';
+
+}
+
+article.appendChild(media);
+
+}
+
+const actions = document.createElement('div');
+
+actions.className = 'post-actions';
+
+const like = document.createElement('button');
+
+like.className = 'like-btn';
+
+like.type = 'button';
+
+like.innerHTML = '♡ Like <span>0</span>';
+
+const comment = document.createElement('button');
+
+comment.className = 'comment-toggle';
+
+comment.type = 'button';
+
+comment.textContent = '💬 Comment';
+
+actions.append(like,comment);
+
+article.appendChild(actions);
+
+const comments = document.createElement('div');
+
+comments.className = 'comments';
+
+const list = document.createElement('div');
+
+list.className = 'comment-list';
+
+const form = document.createElement('form');
+
+form.className = 'comment-entry';
+
+const input = document.createElement('input');
+
+input.placeholder = 'Write a comment...';
+
+input.maxLength = 300;
+
+input.required = true;
+
+const send = document.createElement('button');
+
+send.type = 'submit';
+
+send.textContent = 'Send';
+
+form.append(input,send);
+
+comments.append(list,form);
+
+article.appendChild(comments);
+
+posts.prepend(article);
+
+postForm.reset();
+
+});
+
+
+// LIKES AND COMMENTS
+
+document.addEventListener('click',event=>{
+
+const like = event.target.closest('.like-btn');
+
+if(like){
+
+const count = like.querySelector('span');
+
+const isLiked = like.classList.toggle('liked');
+
+count.textContent = String(
+
+Number(count.textContent) + (isLiked ? 1 : -1)
+
+);
+
+like.firstChild.textContent =
+isLiked ? '♥ Liked ' : '♡ Like ';
+
+}
+
+const toggle = event.target.closest('.comment-toggle');
+
+if(toggle){
+
+toggle.closest('.post')
+.querySelector('.comments')
+.classList.toggle('show');
+
+}
+
+});
+
+
+// SEND COMMENTS
+
+document.addEventListener('submit',event=>{
+
+if(!event.target.matches('.comment-entry')){
+
+return;
+
+}
+
+event.preventDefault();
+
+const input = event.target.querySelector('input');
+
+const value = input.value.trim();
+
+if(!value){
+
+return;
+
+}
+
+const p = document.createElement('p');
+
+p.textContent = 'You: ' + value;
+
+event.target.previousElementSibling.appendChild(p);
+
+input.value = '';
+
+});
+
+
+// SEARCH POSTS
+
+document.getElementById('search')
+.addEventListener('input',event=>{
+
+const q = event.target.value.trim().toLowerCase();
+
+document.querySelectorAll('#posts .post')
+.forEach(post=>{
+
+post.style.display =
+(post.dataset.text || post.textContent.toLowerCase())
+.includes(q) ? '' : 'none';
+
+});
+
+});
+
+</script>
+
+</body>
+  </html>
